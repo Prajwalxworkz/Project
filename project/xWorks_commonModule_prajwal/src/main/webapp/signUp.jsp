@@ -19,9 +19,9 @@
 </style>
 </head>
 <body>
-    <div class="container border font-family my-5" style="width:900px;">
-
-        <div class="row justify-content-center">
+    <div class="container border font-family my-5 rounded-4 shadow" style="width:900px;">
+        <p style="color:green;">${successMessage}</p>
+        <div class="row justify-content-center my-3">
             <div class="col-md-4">
                 <div class="text-center">
                     <h4>Sign Up</h4>
@@ -55,8 +55,8 @@
                     <input class="form-control" type="password" name="password" id="">
                     <label class="form-label my-2" for="">Confirm Password</label>
                     <input class="form-control" type="password" name="confirmPassword" id="">
-                    <p style="color:orange; margin-top:20px;">${Message}</p>
-<button class="btn btn-primary my-3 " style="width: 100%;" type="submit">Submit</button>
+                    <p style="color:red; margin-top:20px;">${errorMessage}</p>
+                    <button class="btn btn-primary my-3 " style="width: 100%;" type="submit">Submit</button>
                 </form>
             </div>
         </div>

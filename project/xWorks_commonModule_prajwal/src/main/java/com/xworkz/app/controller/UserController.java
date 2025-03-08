@@ -29,11 +29,11 @@ public class UserController {
         System.out.println(dto.getLocation());
         System.out.println(dto.getPassword());
         System.out.println(dto.getConfirmPassword());
-        Boolean isSaved = service.validateAndSave(dto);
-        if (isSaved==true) {
-           model.addAttribute("Message","Saved Successfully!!");
+        String returnedMessage = service.validateAndSave(dto);
+        if (returnedMessage.equals("saved")) {
+           model.addAttribute("successMessage","Saved Successfully!!");
         }else {
-            model.addAttribute("Message","Recheck the entered values in the form");
+            model.addAttribute("errorMessage",returnedMessage);
         }
         System.out.println("signUp() in controller ended");
         System.out.println("******************0********************0**************0**************0********************");
@@ -45,15 +45,15 @@ public class UserController {
         System.out.println("signIn() in controller started");
         System.out.println(email);
         System.out.println(password);
-        Boolean isValid=service.validateAndLogIn(email, password);
-        if(isValid){
+        String returnedMessage=service.validateAndLogIn(email, password);
+        if(returnedMessage.equals("isPresent")){
             System.out.println("setting the scope");
-           model.addAttribute("email",email);
+            model.addAttribute("email",email);
             System.out.println("signIn() in controller ended");
             System.out.println("******************0********************0**************0**************0********************");
             return "myAccountPage.jsp";
         }else{
-            model.addAttribute("Message","Invalid email or password");
+            model.addAttribute("Message",returnedMessage);
         }
         System.out.println("signIn() in controller ended ");
         System.out.println("******************0********************0**************0**************0********************");
@@ -73,18 +73,35 @@ public class UserController {
     @PostMapping("updateProfile")
     public String updateProfile(UserDto dto, Model model){
         System.out.println("updateProfile() in controller started");
-        Boolean isUpdated=service.updateProfile(dto);
-        if(isUpdated==true){
+        String returnedMessage=service.updateProfile(dto);
+        if(returnedMessage.equals("updated")){
             model.addAttribute("successMessage","Profile updated successfully");
             System.out.println("updateProfile() in controller ended");
             System.out.println("******************0********************0**************0**************0********************");
             return "myAccountPage.jsp";
         }
         else{
-            model.addAttribute("errorMessage","Recheck the entered values in the form");
+            model.addAttribute("errorMessage",returnedMessage);
             System.out.println("updateProfile() in controller ended");
             System.out.println("******************0********************0**************0**************0********************");
             return "updateProfile.jsp" ;
         }
     }
+@PostMapping("resetPassword")
+    public String resetPassword(@RequestParam("email") String email,@RequestParam("password") String password,@RequestParam("confirmPassword") String confirmPassword, Model model ){
+        System.out.println("resetPassword() in controller started");
+        String returnedMessage=service.resetPassword(email, password, confirmPassword);
+        if(returnedMessage.equals("done")){
+            model.addAttribute("successMessage","Password reset successfully done.");
+            System.out.println("resetPassword() in controller ended");
+            System.out.println("******************0********************0**************0**************0********************");
+            return "resetPassword.jsp";
+        }else{
+            model.addAttribute("errorMessage",returnedMessage);
+            System.out.println("resetPassword() in controller ended");
+            System.out.println("******************0********************0**************0**************0********************");
+            return "resetPassword.jsp";
+        }
+    }
 }
+

@@ -14,9 +14,9 @@
     />
   </head>
   <body>
-    <div class="container border my-5" style="width: 800px;">
+    <div class="container border my-5 rounded-4 shadow" style="width: 800px;">
 
-      <div class="text-center">
+      <div class="text-center my-3">
         <h3>Log In</h3>
         <small> Don't have an account? <a href="signUp.jsp"> SignUp </a> </small>
       </div>
@@ -27,6 +27,7 @@
             <input class="form-control" type="email" name="email" id="" />
             <label class="form-label my-2" for="">Password: </label>
             <input class="form-control" type="password" name="password" id="" />
+            <a href="resetPassword.jsp" style="text-decoration: none;" > <small>Forgot password?</small> </a>
             <p style="color:red;">${Message}</p>
             <button class="btn btn-primary my-3"style="width: 80%; margin-left: 35px;" value="submit">Log In</button>
             <div class="my-3">

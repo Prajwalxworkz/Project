@@ -35,8 +35,22 @@ public class SpringConfiguration implements WebMvcConfigurer {
 
     private Properties getProperties(){
         Properties properties = new Properties();
-        properties.setProperty("show_sql","true");
-        properties.setProperty("hbm2ddl.auto","update");
+
+//        // ✅ Correct Hibernate dialect for MySQL
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+//
+//        // ✅ Ensure table recreation
+//        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        properties.setProperty("hibernate.hbm2ddl.auto", "update");
+//
+//        // ✅ Debug SQL output
+      properties.setProperty("hibernate.show_sql", "true");
+//        properties.setProperty("hibernate.format_sql", "true");
+//        properties.setProperty("hibernate.use_sql_comments", "true");
+//            properties.setProperty("show_sql","true");
+//            properties.setProperty("hbm2ddl.auto","update");
+
+
         return properties;
     }
 

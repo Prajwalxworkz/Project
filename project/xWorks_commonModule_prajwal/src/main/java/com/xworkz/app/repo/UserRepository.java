@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserRepository {
     public Boolean save(UserEntity entity);
 
-    List<UserEntity> logInCredentials();
+    List<UserEntity> getAllUserData();
 
     UserEntity getUserByEmail(String email);
 

@@ -4,13 +4,14 @@ import com.xworkz.app.constants.Location;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.Instant;
+
 @Data
 @Entity
-@Table
-@NamedQuery(name="logInCredentials",query="select user from UserEntity user")
+@Table(name="userentity")
+@NamedQuery(name="getAllUserData",query="select user from UserEntity user")
 @NamedQuery(name="getUserByEmail",query="select user from UserEntity user where user.email=:emailId")
-//@NamedQuery(name = "updateProfile",query="update UserEntity user set user.fullName=:fullName where user.email=:email")
-@NamedQuery(name = "updateProfile",query="update UserEntity user set user.fullName=:fullName, user.dob=:dob, user.phoneNumber=:phoneNumber, user.gender=:gender, user.location=:location, user.password=:password where user.email=:email")
+@NamedQuery(name = "updateProfile",query="update UserEntity user set user.fullName=:fullName, user.dob=:dob, user.phoneNumber=:phoneNumber, user.gender=:gender, user.location=:location, user.password=:password, user.invalidLogInCount=:invalidLogInCount, user.lastLogIn=:lastLogIn where user.email=:email")
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +23,7 @@ public class UserEntity {
     private String gender;
     private String location;
     private String password;
+    private int invalidLogInCount;
+    @Column(name = "lastLogIn", columnDefinition = "TIMESTAMP(6)")
+    private Instant lastLogIn;
 }

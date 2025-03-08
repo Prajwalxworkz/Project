@@ -3,11 +3,13 @@ package com.xworkz.app.service;
 import com.xworkz.app.dto.UserDto;
 
 public interface UserService {
-    public Boolean validateAndSave(UserDto dto);
+    public String validateAndSave(UserDto dto);
 
-    Boolean validateAndLogIn(String email, String password);
+    String validateAndLogIn(String email, String password);
 
     UserDto getUserByEmail(String email);
 
-    Boolean updateProfile(UserDto dto);
+    String updateProfile(UserDto dto);
+
+    String resetPassword(String email, String password, String confirmPassword);
 }

@@ -19,8 +19,8 @@
 </style>
 </head>
 <body>
-    <div class="container border font-family my-5" style="width:900px;">
-        <div class="row justify-content-center">
+    <div class="container border font-family my-5 rounded-4 shadow" style="width:900px;">
+        <div class="row justify-content-center my-3">
             <div class="col-md-4">
 
                 <form action="updateProfile" method="post">

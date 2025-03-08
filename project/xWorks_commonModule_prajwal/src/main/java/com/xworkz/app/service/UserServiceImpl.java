@@ -13,72 +13,180 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class  UserServiceImpl implements UserService{
 
     @Autowired
     UserRepository repository;
 
-    @Override
-    public Boolean validateAndSave(UserDto dto) {
-        System.out.println("validateAndSave() in service started");
-        Boolean isSaved=false;
-        ValidatorFactory validatorFactory =Validation.buildDefaultValidatorFactory();
-        Validator validator =validatorFactory.getValidator();
-        Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
-       if (!validate.isEmpty()){
-            validate.forEach(error-> System.out.println(error.getMessage()));
-       }else{
-           try{
-               String name=dto.getFullName();
-               Long phoneNumber=dto.getPhoneNumber();
-               String email=dto.getEmail();
-               String password=dto.getPassword();
-               String confirmPassword=dto.getConfirmPassword();
-               if(validateName(name) && validatePhoneNumber(phoneNumber) && validateEmail(email) && validatePassword(password) && password.equals(confirmPassword)) {
-                   List<UserEntity> entityList=repository.logInCredentials();
-                   for(UserEntity entity1:entityList){
-                       if(entity1.getEmail().equals(email)){
-                           System.out.println("email already exists");
-                              return isSaved;
-                           }
-                   }
-                   UserEntity entity = new UserEntity();
-                   BeanUtils.copyProperties(entity, dto);
-                   System.out.println("Moving to repo");
-                   isSaved = repository.save(entity);
-                   System.out.println("is the data saved?: " + isSaved);
-               }else{
-                   System.out.println(" error");
-                   return isSaved;
-               }
-           }catch(IllegalAccessException | InvocationTargetException e){
-               System.out.println(e.getMessage());
-           }
-       }
-        System.out.println("validateAndSave() in service ended");
-        return isSaved;
-    }
+//    @Override
+//    public Boolean validateAndSave(UserDto dto) {
+//        System.out.println("validateAndSave() in service started");
+//        Boolean isSaved=false;
+//        ValidatorFactory validatorFactory =Validation.buildDefaultValidatorFactory();
+//        Validator validator =validatorFactory.getValidator();
+//        Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
+//       if (!validate.isEmpty()){
+//            validate.forEach(error-> System.out.println(error.getMessage()));
+//       }else{
+//           try{
+//               String name=dto.getFullName();
+//               Long phoneNumber=dto.getPhoneNumber();
+//               String email=dto.getEmail();
+//               String password=dto.getPassword();
+//               String confirmPassword=dto.getConfirmPassword();
+//               if(validateName(name) && validatePhoneNumber(phoneNumber) && validateEmail(email) && validatePassword(password) && password.equals(confirmPassword)) {
+//                   List<UserEntity> entityList=repository.logInCredentials();
+//                   for(UserEntity entity1:entityList){
+//                       if(entity1.getEmail().equals(email)){
+//                           System.out.println("email already existsq");
+//                              return isSaved;
+//                           }
+//                   }
+//                   dto.setPassword(encryption(dto.getPassword()));
+//                   System.out.println(dto.getPassword());
+//                   UserEntity entity = new UserEntity();
+//                   BeanUtils.copyProperties(entity, dto);
+//                   System.out.println("Moving to repo");
+//                   isSaved = repository.save(entity);
+//                   System.out.println("is the data saved?: " + isSaved);
+//               }else{
+//                   System.out.println(" error");
+//                   return isSaved;
+//               }
+//           }catch(IllegalAccessException | InvocationTargetException e){
+//               System.out.println(e.getMessage());
+//           }
+//       }
+//        System.out.println("validateAndSave() in service ended");
+//        return isSaved;
+//    }
 
     @Override
-    public Boolean validateAndLogIn(String email, String password) {
-        System.out.println("validateAndLogIn() in service started");
-        Boolean isAvailable=false;
-            List<UserEntity> entityList=repository.logInCredentials();
-            for(UserEntity entity1:entityList){
-                if(entity1.getEmail().equals(email)){
-                    if(decryption(entity1.getPassword()).equals(password)){
-                       isAvailable= true;
-                    }
+    public String validateAndSave(UserDto dto) {
+        System.out.println("validateAndSave() in service started");
+        ValidatorFactory validatorFactory=Validation.buildDefaultValidatorFactory();
+        Validator validator=validatorFactory.getValidator();
+        Set<ConstraintViolation<UserDto>> validate=validator.validate(dto);
+        if(!validate.isEmpty())
+        {
+            for (ConstraintViolation<UserDto> userDtoConstraintViolation : validate) {
+                System.out.println(userDtoConstraintViolation.getMessage());
+            }
+        }else {
+            List<UserEntity> entityList = repository.getAllUserData();
+            for (UserEntity entity : entityList) {
+                if (entity.getEmail().equals(dto.getEmail())) {
+                    return "Email exists";
                 }
             }
-        System.out.println("Is email and password present?: "+isAvailable);
+            String name = dto.getFullName();
+            String email = dto.getEmail();
+            String dob = dto.getDob();
+            Long phoneNumber = dto.getPhoneNumber();
+            String gender = dto.getGender();
+            String location = dto.getLocation();
+            String password = dto.getPassword();
+            String confirmPassword = dto.getConfirmPassword();
+            try {
+                if (name != null && !name.trim().isEmpty()) {
+                    if (name.matches("[A-Z][a-zA-Z ]*")) {
+                        if (name.length() >= 3 && name.length() <= 50) {
+                            if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
+                                if (phoneNumber != null) {
+                                    if (phoneNumber.toString().matches("(\\+91)?[976]\\d{9}")) {
+                                        if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*-+])\\S{8,}$")) {
+                                            if (password.equals(confirmPassword)) {
+                                                dto.setPassword(encryption(dto.getPassword()));
+                                                UserEntity entity = new UserEntity();
+                                                BeanUtils.copyProperties(entity, dto);
+                                                Boolean isSaved=repository.save(entity);
+                                                if(isSaved) return "saved";
+                                                else return "ConstraintViolationException: could not execute statement";
+                                            } else return "Invalid: Password and ConfirmPassword does not match";
+                                        } else
+                                            return "Invalid: Password must have at least one uppercase letter, one lowercase letter, one digit, one special character, no spaces, not null, not empty and be at least 8 characters long.";
+                                    } else
+                                        return "Invalid: Phone number must start with 9, 7, or 6 and must contain exactly 10 digits.";
+                                } else return "Invalid: Phone number cannot null.";
+                            } else
+                                return "Invalid: domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.";
+                        } else return "Invalid: Name should be of length min of 3 and max of 50";
+                    } else
+                        return "Invalid: Name must start with an uppercase letter and must contain only alphabets and spaces.";
+                } else return "Invalid: Name cannot be empty or null.";
+            }catch (IllegalAccessException | InvocationTargetException e){
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.println("validateAndSave() in service ended");
+        return "saved";
+    }
+
+//    @Override
+//    public String validateAndLogIn(String email, String password) {
+//        String returnedMessage="";
+//        System.out.println("validateAndLogIn() in service started");
+//            List<UserEntity> entityList=repository.getAllUserData();
+//            for(UserEntity entity1:entityList){
+//                if(entity1.getEmail().equals(email)){
+//                    if(decryption(entity1.getPassword()).equals(password)){
+//                        returnedMessage= "isPresent";
+//                    }else returnedMessage= "Password is incorrect.";
+//                }else returnedMessage= "Email is incorrect.";
+//            }
+////        System.out.println("Is email and password present?: "+isAvailable);
+//        System.out.println("ValidateAndLogIn() in service ended");
+//        return returnedMessage;
+//    }
+    @Override
+    public String validateAndLogIn(String email, String password) {
+        String returnedMessage="";
+        System.out.println("validateAndLogIn() in service started");
+            List<UserEntity> entityList=repository.getAllUserData();
+            for(UserEntity entity:entityList){
+                if(entity.getEmail().equals(email)){
+                    UserEntity entity1=repository.getUserByEmail(email);
+                    if(decryption(entity.getPassword()).equals(password)){
+                        int invalidLogInCount=entity1.getInvalidLogInCount();
+                        long duration=(Duration.between(entity1.getLastLogIn(),Instant.now())).toMillis();
+                        if(invalidLogInCount<3) {
+                            returnedMessage = "isPresent";
+                        } else if (invalidLogInCount==3 && duration>=86400000) {
+                            entity1.setInvalidLogInCount(0);
+                            entity1.setLastLogIn(null);
+                            repository.updateProfile(entity1);
+                            returnedMessage="isPresent";
+                        }else returnedMessage="Try after 24 hours";
+                    }else {
+                        int invalidLogInCount=entity1.getInvalidLogInCount();
+                        System.out.println("invalid log in count before: "+invalidLogInCount);
+                        Instant lastLogIn=entity1.getLastLogIn();
+                        System.out.println("Last log in time: "+lastLogIn);
+                        if(invalidLogInCount<3){
+                        invalidLogInCount=invalidLogInCount+1;
+                        entity1.setInvalidLogInCount(invalidLogInCount);
+                        System.out.println("invalid log in count after: "+entity1.getInvalidLogInCount());
+                        lastLogIn=Instant.now();
+                        entity1.setLastLogIn(lastLogIn);
+                        System.out.println("Last log in time: "+entity1.getLastLogIn());
+                        repository.updateProfile(entity1);
+                        returnedMessage = "Password is incorrect.(Total 3 attempts only)";
+                        }else {
+                            return returnedMessage="Account is locked for 24 hours";
+                        }
+                    }
+                }else returnedMessage= "Invalid email";
+            }
+//        System.out.println("Is email and password present?: "+isAvailable);
         System.out.println("ValidateAndLogIn() in service ended");
-        return isAvailable;
+        return returnedMessage;
     }
 
     @Override
@@ -96,43 +204,117 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public Boolean updateProfile(UserDto dto) {
-        System.out.println("updateProfile() in service  started");
-        Boolean isUpdated=false;
-        ValidatorFactory validatorFactory =Validation.buildDefaultValidatorFactory();
-        Validator validator =validatorFactory.getValidator();
-        Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
-        if (!validate.isEmpty()){
-            validate.forEach(error-> System.out.println(error.getMessage()));
-        }else{
-            try{
-                String name=dto.getFullName();
-                Long phoneNumber=dto.getPhoneNumber();
-                String email=dto.getEmail();
-                String password=dto.getPassword();
-                String confirmPassword=dto.getConfirmPassword();
-                if(validateName(name) && validatePhoneNumber(phoneNumber) && validateEmail(email) && validatePassword(password) && password.equals(confirmPassword)) {
-                    UserEntity entity = new UserEntity();
-                    BeanUtils.copyProperties(entity, dto);
-                    System.out.println("Moving to repo");
-                    isUpdated = repository.updateProfile(entity);
-                    System.out.println("is the data saved?: " + isUpdated);
-                }else{
-                    System.out.println(" error");
-                }
-            }catch(IllegalAccessException | InvocationTargetException e){
+    public String updateProfile(UserDto dto) {
+        System.out.println("updateProfile() in service started");
+        ValidatorFactory validatorFactory=Validation.buildDefaultValidatorFactory();
+        Validator validator=validatorFactory.getValidator();
+        Set<ConstraintViolation<UserDto>> validate=validator.validate(dto);
+        if(!validate.isEmpty())
+        {
+            for (ConstraintViolation<UserDto> userDtoConstraintViolation : validate) {
+                System.out.println(userDtoConstraintViolation.getMessage());
+            }
+        }else {
+            String name = dto.getFullName();
+            String email = dto.getEmail();
+            String dob = dto.getDob();
+            Long phoneNumber = dto.getPhoneNumber();
+            String gender = dto.getGender();
+            String location = dto.getLocation();
+            String password = dto.getPassword();
+            String confirmPassword = dto.getConfirmPassword();
+            try {
+                if (name != null && !name.trim().isEmpty()) {
+                    if (name.matches("[A-Z][a-zA-Z ]*")) {
+                        if (name.length() >= 3 && name.length() <= 50) {
+                            if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
+                                if (phoneNumber != null) {
+                                    if (phoneNumber.toString().matches("(\\+91)?[976]\\d{9}")) {
+                                        if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*-+_=])\\S{8,}$")) {
+                                            if (password.equals(confirmPassword)) {
+                                                dto.setPassword(encryption(dto.getPassword()));
+                                                UserEntity entity = new UserEntity();
+                                                BeanUtils.copyProperties(entity, dto);
+                                                repository.updateProfile(entity);
+                                                return "updated";
+                                            } else return "Invalid: Passwords must match";
+                                        } else
+                                            return "Invalid: Password must have at least one uppercase letter, one lowercase letter, one digit, one special character, no spaces, not null, not empty and be at least 8 characters long.";
+                                    } else
+                                        return "Invalid: Phone number must start with 9, 7, or 6 and must contain exactly 10 digits.";
+                                } else return "Invalid: Phone number cannot null.";
+                            } else
+                                return "Invalid: domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.";
+                        } else return "Invalid: Name should be of length min of 3 and max of 50";
+                    } else
+                        return "Invalid: Name must start with an uppercase letter and must contain only alphabets and spaces.";
+                } else return "Invalid: Name cannot be empty or null.";
+            }catch (IllegalAccessException | InvocationTargetException e){
                 System.out.println(e.getMessage());
             }
         }
         System.out.println("updateProfile() in service ended");
-        return isUpdated;
+        return "updated";
     }
+
+    @Override
+    public String resetPassword(String email, String password, String confirmPassword) {
+        System.out.println("resetPassword() in service started");
+        List<UserEntity> entityList=repository.getAllUserData();
+        for(UserEntity entity:entityList){
+            if(email.equals(entity.getEmail())){
+                if(password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*-+=_])\\S{8,}$") ){
+                    if(password.equals(confirmPassword)){
+                        UserEntity entity1=repository.getUserByEmail(email);
+                        entity.setPassword(encryption(password));
+                        repository.updateProfile(entity);
+                    }else  return "Passwords must match";
+                }else return "Invalid: Password must have at least one uppercase letter, one lowercase letter, one digit, one special character, no spaces, not null, not empty and be at least 8 characters long.";
+            }else return "Recheck the entered email";
+        }
+        System.out.println("resetPassword() in service ended");
+       return "done";
+    }
+
+//    @Override
+//    public Boolean updateProfile(UserDto dto) {
+//        System.out.println("updateProfile() in service  started");
+//        Boolean isUpdated=false;
+//        ValidatorFactory validatorFactory =Validation.buildDefaultValidatorFactory();
+//        Validator validator =validatorFactory.getValidator();
+//        Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
+//        if (!validate.isEmpty()){
+//            validate.forEach(error-> System.out.println(error.getMessage()));
+//        }else{
+//            try{
+//                String name=dto.getFullName();
+//                Long phoneNumber=dto.getPhoneNumber();
+//                String email=dto.getEmail();
+//                String password=dto.getPassword();
+//                String confirmPassword=dto.getConfirmPassword();
+//                if(validateName(name) && validatePhoneNumber(phoneNumber) && validateEmail(email) && validatePassword(password) && password.equals(confirmPassword)) {
+//                    dto.setPassword(encryption(dto.getPassword()));
+//                    System.out.println(dto.getPassword());
+//                    UserEntity entity = new UserEntity();
+//                    BeanUtils.copyProperties(entity, dto);
+//                    System.out.println("Moving to repo");
+//                    isUpdated = repository.updateProfile(entity);
+//                    System.out.println("is the data saved?: " + isUpdated);
+//                }else{
+//                    System.out.println(" error");
+//                }
+//            }catch(IllegalAccessException | InvocationTargetException e){
+//                System.out.println(e.getMessage());
+//            }
+//        }
+//        System.out.println("updateProfile() in service ended");
+//        return isUpdated;
+//    }
 
 
     public Boolean validateName(String name){
         if(name==null || name.trim().isEmpty()){
             System.out.println("Invalid: Name cannot be empty or null.");
-
             return false;
         }
         if(!name.matches("[A-Z][a-zA-Z ]*")){
@@ -191,6 +373,11 @@ public class UserServiceImpl implements UserService{
                 decrypt.append((char)(ch-3));
             }
             return decrypt.toString();
+        }
+
+        public long timeDifference(Instant lastLogInTime, Instant presentLogInTime){
+          return (Duration.between(lastLogInTime,presentLogInTime).abs()).toMillis();
+
         }
 
 }

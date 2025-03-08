@@ -4,10 +4,7 @@ import com.xworkz.app.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.List;
 
 @Repository
@@ -30,8 +27,6 @@ public class UserRepositoryImpl implements UserRepository{
             System.out.println(entity.getPhoneNumber());
             System.out.println(entity.getLocation());
             System.out.println(entity.getPassword());
-            entity.setPassword(encryption(entity.getPassword()));
-            System.out.println(entity.getPassword());
             System.out.println("Moving to db");
             em.persist(entity);
             isSaved=true;
@@ -49,15 +44,15 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public List<UserEntity> logInCredentials() {
+    public List<UserEntity> getAllUserData() {
         System.out.println("------------------------------------");
-        System.out.println("logInCredentials() in repo started");
+        System.out.println("getAllUserData() in repo started");
         Boolean isMatching=false;
         EntityManager em = emf.createEntityManager();
-        List<UserEntity> entityList= em.createNamedQuery("logInCredentials").getResultList();
+        List<UserEntity> entityList= em.createNamedQuery("getAllUserData").getResultList();
         System.out.println("is resultSet empty: "+entityList.isEmpty());
         em.close();
-        System.out.println("logInCredentials() in repo ended");
+        System.out.println("getAllUserData() in repo ended");
         System.out.println("------------------------------------");
         return entityList;
     }
@@ -67,10 +62,17 @@ public class UserRepositoryImpl implements UserRepository{
         System.out.println("------------------------------------");
         System.out.println("getUserByEmail() in repo started");
         EntityManager em = emf.createEntityManager();
-        UserEntity entity=(UserEntity) em.createNamedQuery("getUserByEmail").setParameter("emailId",email).getSingleResult();
-        em.close();
-        System.out.println("getUserByEmail() in repo ended");
-        System.out.println("------------------------------------");
+        UserEntity entity=new UserEntity();
+        try {
+             entity = (UserEntity) em.createNamedQuery("getUserByEmail").setParameter("emailId", email).getSingleResult();
+            System.out.println("getUserByEmail() in repo ended");
+            System.out.println("------------------------------------");
+            return entity;
+        }catch (NoResultException e){
+            System.out.println(e.getMessage());
+        }finally {
+            em.close();
+        }
         return entity;
     }
 
@@ -81,7 +83,18 @@ public class UserRepositoryImpl implements UserRepository{
         System.out.println("updateProfile() in repo  started");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-        em.merge(entity);
+        Query query=em.createNamedQuery("updateProfile");
+        query.setParameter("fullName",entity.getFullName());
+        query.setParameter("email",entity.getEmail());
+        query.setParameter("dob",entity.getDob());
+        query.setParameter("gender",entity.getGender());
+        query.setParameter("location",entity.getLocation()  );
+        query.setParameter("phoneNumber",entity.getPhoneNumber());
+        query.setParameter("password",entity.getPassword());
+        query.setParameter("lastLogIn",entity.getLastLogIn());
+        query.setParameter("invalidLogInCount",entity.getInvalidLogInCount());
+        query.executeUpdate();
+//        em.merge(entity);
         isUpdated=true;
         em.getTransaction().commit();
         em.close();
@@ -90,18 +103,4 @@ public class UserRepositoryImpl implements UserRepository{
         return isUpdated;
     }
 
-    public String encryption(String password){
-        StringBuilder encrypt= new StringBuilder();
-        for(char ch:password.toCharArray()){
-            encrypt.append((char)(ch+3));
-        }
-        return encrypt.toString();
-    }
-    public String decryption(String encryptedPassword){
-        StringBuilder decrypt= new StringBuilder();
-        for(char ch:encryptedPassword.toCharArray()){
-            decrypt.append((char)(ch-3));
-        }
-        return decrypt.toString();
-    }
 }
