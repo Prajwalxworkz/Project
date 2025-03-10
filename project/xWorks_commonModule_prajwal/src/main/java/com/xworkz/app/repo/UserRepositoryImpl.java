@@ -27,6 +27,10 @@ public class UserRepositoryImpl implements UserRepository{
             System.out.println(entity.getPhoneNumber());
             System.out.println(entity.getLocation());
             System.out.println(entity.getPassword());
+            System.out.println(entity.getLastLogIn());
+            System.out.println(entity.getInvalidLogInCount());
+            System.out.println("Saving -1 as the default value for invalidLoginCount");
+            entity.setInvalidLogInCount(-1);
             System.out.println("Moving to db");
             em.persist(entity);
             isSaved=true;
@@ -83,6 +87,15 @@ public class UserRepositoryImpl implements UserRepository{
         System.out.println("updateProfile() in repo  started");
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
+        System.out.println(entity.getFullName());
+        System.out.println(entity.getEmail());
+        System.out.println(entity.getGender());
+        System.out.println(entity.getDob());
+        System.out.println(entity.getPhoneNumber());
+        System.out.println(entity.getLocation());
+        System.out.println(entity.getPassword());
+        System.out.println(entity.getLastLogIn());
+        System.out.println(entity.getInvalidLogInCount());
         Query query=em.createNamedQuery("updateProfile");
         query.setParameter("fullName",entity.getFullName());
         query.setParameter("email",entity.getEmail());

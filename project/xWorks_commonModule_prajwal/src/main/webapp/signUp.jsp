@@ -51,10 +51,7 @@
                        <option  value="Shivamogga">Shivamogga</option>
                        <option  value="Chikkamagaluru">Chikkamagaluru</option>
                     </select>
-                    <label class="form-label my-2" for="">Password</label>
-                    <input class="form-control" type="password" name="password" id="">
-                    <label class="form-label my-2" for="">Confirm Password</label>
-                    <input class="form-control" type="password" name="confirmPassword" id="">
+
                     <p style="color:red; margin-top:20px;">${errorMessage}</p>
                     <button class="btn btn-primary my-3 " style="width: 100%;" type="submit">Submit</button>
                 </form>

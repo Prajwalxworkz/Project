@@ -46,13 +46,17 @@ public class UserController {
         System.out.println(email);
         System.out.println(password);
         String returnedMessage=service.validateAndLogIn(email, password);
+        System.out.println("The returned message is: "+returnedMessage);
         if(returnedMessage.equals("isPresent")){
             System.out.println("setting the scope");
             model.addAttribute("email",email);
             System.out.println("signIn() in controller ended");
             System.out.println("******************0********************0**************0**************0********************");
             return "myAccountPage.jsp";
-        }else{
+        } else if (returnedMessage.equals("forward")) {
+            model.addAttribute("userEmail",email);
+            return "resetPassword.jsp";
+        } else{
             model.addAttribute("Message",returnedMessage);
         }
         System.out.println("signIn() in controller ended ");
