@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
     <%@ page isELIgnored="false" %>
+         <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,6 +16,21 @@
     />
   </head>
   <body>
+   <c:if test="${not empty successMessage}">
+          <button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#successModal" id="autoClick"></button>
+      </c:if>
+  <div class="modal fade" id="successModal"   tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+         <div class="modal-body">
+               <p style="color:green;">${successMessage}</p>
+               </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="container border my-5 rounded-4 shadow" style="width: 800px;">
 
       <div class="text-center my-3">
@@ -29,6 +46,7 @@
             <input class="form-control" type="password" name="password" id="" />
             <a href="resetPassword.jsp" style="text-decoration: none;" > <small>Forgot password?</small> </a>
             <p style="color:red;">${Message}</p>
+
             <button class="btn btn-primary my-3"style="width: 80%; margin-left: 35px;" value="submit">Log In</button>
             <div class="my-3">
               <div class="text-center">
@@ -47,6 +65,13 @@
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js
-    "></script>
+    ">
+    </script>
+        <c:if test="${not empty successMessage}">
+             <script>
+                 document.getElementById("autoClick").click();
+             </script>
+         </c:if>
+
   </body>
 </html>

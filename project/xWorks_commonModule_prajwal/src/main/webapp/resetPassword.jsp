@@ -25,10 +25,9 @@
             <div class="row justify-content-center" >
                 <div class="col col-md-6">
                     <form  action="resetPassword" method="post">
-                    <c:set var="email" value="${userEmail}"/>
-                    <c:set var="count" value="1"/>
+
                         <c:choose>
-                        <c:when test="${count==1}">
+                        <c:when test="${ email ne null}">
                              <div class="my-2">
                                  <input  type="email" name="email" id="" value="${email}" hidden>
                              </div>
@@ -41,6 +40,7 @@
                                      <input class="form-control" type="password" name="confirmPassword" id="">
                              </div>
                                   <p style="color:red; margin-top:20px;">${errorMessage}</p>
+
                              <div class="my-4">
                                      <button class="btn btn-primary"style="width: 80%; margin-left: 35px;" type="submit">Reset Password</button>
                              </div>

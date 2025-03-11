@@ -26,9 +26,9 @@
           />
 
             <ul  class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="home.html">Home</a></li>
-                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="aboutUs.html">About Us</a></li>
-                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="contact.html">Contact</a></li>
+                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="#">About Us</a></li>
+                <li class="nav-item"> <a class="nav-link active" aria-current="page" href="#">Contact</a></li>
             </ul>
 
             <div class="d-flex">

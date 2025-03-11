@@ -49,10 +49,8 @@
                        <option  value="Shivamogga" ${dto.getLocation()=="Shivamogga"? 'selected="selected"':''}>Shivamogga</option>
                        <option  value="Chikkamagaluru" ${dto.getLocation()=="Chikkamagaluru"? 'selected="selected"':''}>Chikkamagaluru</option>
                     </select>
-                    <label class="form-label my-2" for="" >Password</label>
-                    <input class="form-control" type="password" name="password" id="" value="${dto.getPassword()}">
-                    <label class="form-label my-2" for="" >Confirm Password</label>
-                    <input class="form-control" type="password" name="confirmPassword" id="" value="${dto.getPassword()}">
+                    <input class="form-control" type="password" name="password" id="" value="${dto.getPassword()}" hidden>
+                    <input class="form-control" type="password" name="confirmPassword" id="" value="${dto.getPassword()}" hidden>
                      <p style="color:red; margin-top:20px;">${errorMessage}</p>
 <button class="btn btn-primary my-3 " style="width: 100%;" type="submit">Update Profile</button>
                 </form>

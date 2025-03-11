@@ -7,17 +7,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLOutput;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 @Service
@@ -78,6 +72,53 @@ public class UserServiceImpl implements UserService {
     @Override
     public String validateAndSave(UserDto dto) {
         System.out.println("validateAndSave() in service started");
+
+        List<UserEntity> entityList = repository.getAllUserData();
+        for (UserEntity entity : entityList) {
+            if (dto.getFullName().equals(entity.getFullName())) return "Name exists";
+            if (entity.getEmail().equals(dto.getEmail())) return "Email exists";
+            if (dto.getPhoneNumber().equals(entity.getPhoneNumber())) return "Phone number exists";
+        }
+        String name = dto.getFullName();
+        String email = dto.getEmail();
+        String dob = dto.getDob();
+        Long phoneNumber = dto.getPhoneNumber();
+        String gender = dto.getGender();
+        String location = dto.getLocation();
+        String password = passwordGenerator();
+        System.out.println("Password: " + password);
+        try {
+            if (name != null && !name.trim().isEmpty()) {
+                if (name.matches("[A-Z][a-zA-Z ]*")) {
+                    if (name.length() >= 3 && name.length() <= 50) {
+                        if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
+                            if (phoneNumber != null) {
+                                if (phoneNumber.toString().matches("(\\+91)?[976]\\d{9}")) {
+                                    dto.setPassword(encryption(password));
+                                    UserEntity entity = new UserEntity();
+                                    BeanUtils.copyProperties(entity, dto);
+                                    Boolean isSaved = repository.save(entity);
+                                    if (isSaved) return "saved";
+                                    else return "ConstraintViolationException: could not execute statement";
+                                } else
+                                    return "Invalid: Phone number must start with 9, 7, or 6 and must contain exactly 10 digits.";
+                            } else return "Invalid: Phone number cannot null.";
+                        } else
+                            return "Invalid: domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.";
+                    } else return "Invalid: Name should be of length min of 3 and max of 50";
+                } else
+                    return "Invalid: Name must start with an uppercase letter and must contain only alphabets and spaces.";
+            } else return "Invalid: Name cannot be empty or null.";
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("validateAndSave() in service ended");
+        return "saved";
+    }
+
+ /*   @Override
+    public String validateAndSave(UserDto dto) {
+        System.out.println("validateAndSave() in service started");
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
@@ -130,6 +171,8 @@ public class UserServiceImpl implements UserService {
         return "saved";
     }
 
+  */
+
     /*
      if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*-+])\\S{8,}$")) {
                                             if (password.equals(confirmPassword)) {
@@ -169,7 +212,10 @@ public class UserServiceImpl implements UserService {
     public String validateAndLogIn(String email, String password) {
 
         System.out.println("validateAndLogIn() in service started");
+        if (email.isEmpty()) return "Email can't be null";
+        if (password.isEmpty()) return "Password can't be null";
         List<UserEntity> entityList = repository.getAllUserData();
+
         for (UserEntity entity : entityList) {
             if (entity.getEmail().equals(email)) {
                 System.out.println(entity.getEmail());
@@ -177,16 +223,16 @@ public class UserServiceImpl implements UserService {
                 UserEntity entity1 = repository.getUserByEmail(email);
                 if (decryption(entity.getPassword()).equals(password)) {
                     int invalidLogInCount = entity1.getInvalidLogInCount();
-                    if (invalidLogInCount==-1){
+                    if (invalidLogInCount == -1) {
                         entity1.setInvalidLogInCount(0);
-                        System.out.println("During initial login time, the invalidLoginCount is: "+entity1.getInvalidLogInCount());
+                        System.out.println("During initial login time, the invalidLoginCount is: " + entity1.getInvalidLogInCount());
                         repository.updateProfile(entity1);
                         return "forward";
 
                     } else if (invalidLogInCount == 0) {
                         return "isPresent";
 
-                    } else if (invalidLogInCount==1 || invalidLogInCount==2) {
+                    } else if (invalidLogInCount == 1 || invalidLogInCount == 2) {
                         System.out.println("invalidLogInCount==1 || invalidLogInCount==1");
                         entity1.setInvalidLogInCount(0);
                         entity1.setLastLogIn(null);
@@ -194,7 +240,7 @@ public class UserServiceImpl implements UserService {
                         System.out.println(entity1.getLastLogIn());
                         repository.updateProfile(entity1);
                         return "isPresent";
-                    }  else if (invalidLogInCount == 3 && (Duration.between(entity1.getLastLogIn(), Instant.now())).toMillis() >= 60000) {
+                    } else if (invalidLogInCount == 3 && (Duration.between(entity1.getLastLogIn(), Instant.now())).toMillis() >= 60000) {
                         System.out.println("invalidLogInCount==3 && duration>=600000");
                         entity1.setInvalidLogInCount(0);
                         entity1.setLastLogIn(null);
@@ -203,16 +249,15 @@ public class UserServiceImpl implements UserService {
                         repository.updateProfile(entity1);
                         return "isPresent";
 
-                    } else{
+                    } else {
                         return "Try after 24 hours";
-
                     }
                 } else {
                     int invalidLogInCount = entity1.getInvalidLogInCount();
                     System.out.println("invalid log in count before: " + invalidLogInCount);
                     Instant lastLogIn = entity1.getLastLogIn();
                     System.out.println("Last log in time: " + lastLogIn);
-                    if (invalidLogInCount <3) {
+                    if (invalidLogInCount < 3) {
                         invalidLogInCount = invalidLogInCount + 1;
                         entity1.setInvalidLogInCount(invalidLogInCount);
                         System.out.println("invalid log in count after: " + entity1.getInvalidLogInCount());
@@ -220,11 +265,11 @@ public class UserServiceImpl implements UserService {
                         entity1.setLastLogIn(lastLogIn);
                         System.out.println("present log in time: " + entity1.getLastLogIn());
                         repository.updateProfile(entity1);
-                         if(invalidLogInCount==1) return "Password is incorrect.Two more attempts left.";
-                         else if(invalidLogInCount==2)  return "Password is incorrect.Ome attempt left.";
-                         else return "Account is locked for 24 hours";
+                        if (invalidLogInCount == 1) return "Password is incorrect.Two more attempts left.";
+                        else if (invalidLogInCount == 2) return "Password is incorrect.Ome attempt left.";
+                        else return "Account is locked for 24 hours";
                     } else {
-                         return "Account is locked for 24 hours";
+                        return "Account is locked for 24 hours";
                     }
                 }
             }
@@ -287,6 +332,51 @@ public class UserServiceImpl implements UserService {
     @Override
     public String updateProfile(UserDto dto) {
         System.out.println("updateProfile() in service started");
+        String name = dto.getFullName();
+        String email = dto.getEmail();
+        String dob = dto.getDob();
+        Long phoneNumber = dto.getPhoneNumber();
+        String gender = dto.getGender();
+        String location = dto.getLocation();
+        String password = dto.getPassword();
+        String confirmPassword = dto.getConfirmPassword();
+        try {
+            if (name != null && !name.trim().isEmpty()) {
+                if (name.matches("[A-Z][a-zA-Z ]*")) {
+                    if (name.length() >= 3 && name.length() <= 50) {
+                        if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
+                            if (phoneNumber != null) {
+                                if (phoneNumber.toString().matches("(\\+91)?[976]\\d{9}")) {
+                                    if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*-+_=])\\S{8,}$")) {
+                                        if (password.equals(confirmPassword)) {
+                                            System.out.println("Before encryption: " + dto.getPassword());
+                                            dto.setPassword(encryption(dto.getPassword()));
+                                            UserEntity entity = repository.getUserByEmail(email);
+                                            BeanUtils.copyProperties(entity, dto);
+                                            repository.updateProfile(entity);
+                                            return "updated";
+                                        } else return "Invalid: Passwords must match";
+                                    } else
+                                        return "Invalid: Password must have at least one uppercase letter, one lowercase letter, one digit, one special character, no spaces, not null, not empty and be at least 8 characters long.";
+                                } else
+                                    return "Invalid: Phone number must start with 9, 7, or 6 and must contain exactly 10 digits.";
+                            } else return "Invalid: Phone number cannot null.";
+                        } else
+                            return "Invalid: domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.";
+                    } else return "Invalid: Name should be of length min of 3 and max of 50";
+                } else
+                    return "Invalid: Name must start with an uppercase letter and must contain only alphabets and spaces.";
+            } else return "Invalid: Name cannot be empty or null.";
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println("updateProfile() in service ended");
+        return "updated";
+    }
+
+/*  @Override
+    public String updateProfile(UserDto dto) {
+        System.out.println("updateProfile() in service started");
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         Set<ConstraintViolation<UserDto>> validate = validator.validate(dto);
@@ -338,6 +428,8 @@ public class UserServiceImpl implements UserService {
         return "updated";
     }
 
+ */
+
     @Override
     public String resetPassword(String email, String password, String confirmPassword) {
         System.out.println("resetPassword() in service started");
@@ -358,7 +450,7 @@ public class UserServiceImpl implements UserService {
             }
         }
         System.out.println("resetPassword() in service ended");
-         return "Recheck the entered email";
+        return "Recheck the entered email";
     }
 
     public Boolean validateName(String name) {
@@ -425,17 +517,17 @@ public class UserServiceImpl implements UserService {
         return decrypt.toString();
     }
 
-  public String passwordGenerator(){
-      Random random= new Random();
-      StringBuilder stringBuilder=new StringBuilder();
-      while(stringBuilder.length()<13){
-          char character=(char) random.nextInt(256);
-          if(String.valueOf(character).matches("[a-zA-Z0-9!@#$%^&*-=_+]")){
-              stringBuilder.append(character);
-          }
-      }
-     return stringBuilder.toString();
-  }
+    public String passwordGenerator() {
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder();
+        while (stringBuilder.length() < 13) {
+            char character = (char) random.nextInt(256);
+            if (String.valueOf(character).matches("[a-zA-Z0-9!@#$%^&*-=_+]")) {
+                stringBuilder.append(character);
+            }
+        }
+        return stringBuilder.toString();
+    }
 
 }
 

@@ -11,7 +11,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.30</version>
+      <version>1.18.24</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -53,36 +53,16 @@
       <artifactId>spring-orm</artifactId>
       <version>5.3.32</version>
     </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-validator</artifactId>
-      <version>1.13.7.Final</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-hibernate-validator</artifactId>-->
+<!--      <version>1.13.7.Final</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>jstl</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-      <version>1.7.25</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>log4j-over-slf4j</artifactId>
-      <version>1.7.25</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
-
-    </dependency>
-
   </dependencies>
   <build>
     <finalName>xWorks_commonModule_prajwal</finalName>

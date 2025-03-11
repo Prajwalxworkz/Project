@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
     <%@ page isELIgnored="false" %>
+         <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,8 +21,24 @@
 </style>
 </head>
 <body>
+   <c:if test="${not empty successMessage}">
+          <button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#successModal" id="autoClick"></button>
+      </c:if>
+  <div class="modal fade" id="successModal"   tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+         <div class="modal-body">
+               <p style="color:green;">${successMessage}</p>
+               </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <div class="container border font-family my-5 rounded-4 shadow" style="width:900px;">
-        <p style="color:green;">${successMessage}</p>
+
         <div class="row justify-content-center my-3">
             <div class="col-md-4">
                 <div class="text-center">
@@ -60,5 +78,12 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js
     "></script>
+          <c:if test="${not empty successMessage}">
+              <script>
+                      document.getElementById("autoClick").click();
+              </script>
+          </c:if>
+
+
 </body>
 </html>
