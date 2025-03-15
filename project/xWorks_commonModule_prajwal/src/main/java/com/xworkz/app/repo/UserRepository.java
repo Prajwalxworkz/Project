@@ -13,4 +13,6 @@ public interface UserRepository {
     UserEntity getUserByEmail(String email);
 
     Boolean updateProfile(UserEntity entity);
+
+    boolean deleteProfile(UserEntity entity);
 }

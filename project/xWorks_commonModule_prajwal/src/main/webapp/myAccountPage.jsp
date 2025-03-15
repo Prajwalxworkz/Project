@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
     <%@ page isELIgnored="false" %>
+         <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <!DOCTYPE html>
     <html lang="en">
       <head>
@@ -61,7 +62,8 @@
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown"
                   >
-                    <li><a class="dropdown-item" href="getUserByEmail?email=${email}">Update Profile</a></li>
+                    <li><a class="dropdown-item" href="getUserByEmail?email=${email}&event=update">Update Profile</a></li>
+                    <li><a class="dropdown-item" href="getUserByEmail?email=${email}&event=delete">Delete Account</a></li>
                     <li><a class="dropdown-item" href="index.jsp">Logout</a></li>
                   </ul>
                 </li>
@@ -71,6 +73,8 @@
         </nav>
          <div class="alert alert-success">
               <p>${successMessage}</p>
+          </div> <div class="alert alert-danger">
+              <p>${errorMessage}</p>
           </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js
         "></script>

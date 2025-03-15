@@ -1,18 +1,37 @@
 package com.xworkz.app.service;
 
+import com.mewebstudio.captcha.Captcha;
+import com.mewebstudio.captcha.Config;
+import com.mewebstudio.captcha.GeneratedCaptcha;
+import com.xworkz.app.constants.Location;
 import com.xworkz.app.dto.UserDto;
 import com.xworkz.app.entity.UserEntity;
 import com.xworkz.app.repo.UserRepository;
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpSession;
+import java.util.Properties;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -84,9 +103,7 @@ public class UserServiceImpl implements UserService {
         String dob = dto.getDob();
         Long phoneNumber = dto.getPhoneNumber();
         String gender = dto.getGender();
-        String location = dto.getLocation();
-        String password = passwordGenerator();
-        System.out.println("Password: " + password);
+        Location location = dto.getLocation();
         try {
             if (name != null && !name.trim().isEmpty()) {
                 if (name.matches("[A-Z][a-zA-Z ]*")) {
@@ -94,11 +111,18 @@ public class UserServiceImpl implements UserService {
                         if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
                             if (phoneNumber != null) {
                                 if (phoneNumber.toString().matches("(\\+91)?[976]\\d{9}")) {
+                                    String password = passwordGenerator();
+                                    System.out.println("Password: " + password);
                                     dto.setPassword(encryption(password));
                                     UserEntity entity = new UserEntity();
                                     BeanUtils.copyProperties(entity, dto);
+                                    System.out.println("Saving -1 as the default value for invalidLoginCount");
+                                    entity.setInvalidLogInCount(-1);
                                     Boolean isSaved = repository.save(entity);
-                                    if (isSaved) return "saved";
+                                    if (isSaved){
+                                        sendEmail(dto.getFullName(),dto.getEmail(),password);
+                                        return "saved";
+                                    }
                                     else return "ConstraintViolationException: could not execute statement";
                                 } else
                                     return "Invalid: Phone number must start with 9, 7, or 6 and must contain exactly 10 digits.";
@@ -209,9 +233,13 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public String validateAndLogIn(String email, String password) {
+    public String validateAndLogIn(String email, String password,HttpSession session, String enteredCaptcha) {
 
         System.out.println("validateAndLogIn() in service started");
+        String captchaCode=(String)session.getAttribute("captchaText");
+        if(!captchaCode.equals(enteredCaptcha)){
+            return "Invalid CAPTCHA! Please try again.";
+        }
         if (email.isEmpty()) return "Email can't be null";
         if (password.isEmpty()) return "Password can't be null";
         List<UserEntity> entityList = repository.getAllUserData();
@@ -225,7 +253,7 @@ public class UserServiceImpl implements UserService {
                     int invalidLogInCount = entity1.getInvalidLogInCount();
                     if (invalidLogInCount == -1) {
                         entity1.setInvalidLogInCount(0);
-                        System.out.println("During initial login time, the invalidLoginCount is: " + entity1.getInvalidLogInCount());
+                        System.out.println("During initial login time, the invalidLoginCount becomes: " + entity1.getInvalidLogInCount());
                         repository.updateProfile(entity1);
                         return "forward";
 
@@ -257,7 +285,7 @@ public class UserServiceImpl implements UserService {
                     System.out.println("invalid log in count before: " + invalidLogInCount);
                     Instant lastLogIn = entity1.getLastLogIn();
                     System.out.println("Last log in time: " + lastLogIn);
-                    if (invalidLogInCount < 3) {
+                    if (invalidLogInCount >-1 && invalidLogInCount<3) {
                         invalidLogInCount = invalidLogInCount + 1;
                         entity1.setInvalidLogInCount(invalidLogInCount);
                         System.out.println("invalid log in count after: " + entity1.getInvalidLogInCount());
@@ -268,6 +296,8 @@ public class UserServiceImpl implements UserService {
                         if (invalidLogInCount == 1) return "Password is incorrect.Two more attempts left.";
                         else if (invalidLogInCount == 2) return "Password is incorrect.Ome attempt left.";
                         else return "Account is locked for 24 hours";
+                    } else if (invalidLogInCount==-1) {
+                        return "Invalid password";
                     } else {
                         return "Account is locked for 24 hours";
                     }
@@ -280,15 +310,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByEmail(String email) {
+        System.out.println("getUserByEmail() in service started");
         UserEntity entity = repository.getUserByEmail(email);
         entity.setPassword(decryption(entity.getPassword()));
         try {
             UserDto dto = new UserDto();
             BeanUtils.copyProperties(dto, entity);
+            System.out.println("getUserByEmail() in service ended");
             return dto;
         } catch (IllegalAccessException | InvocationTargetException e) {
             System.out.println(e.getMessage());
         }
+        System.out.println("getUserByEmail() in service ended");
         return null;
     }
 
@@ -337,7 +370,7 @@ public class UserServiceImpl implements UserService {
         String dob = dto.getDob();
         Long phoneNumber = dto.getPhoneNumber();
         String gender = dto.getGender();
-        String location = dto.getLocation();
+        Location location = dto.getLocation();
         String password = dto.getPassword();
         String confirmPassword = dto.getConfirmPassword();
         try {
@@ -453,6 +486,19 @@ public class UserServiceImpl implements UserService {
         return "Recheck the entered email";
     }
 
+    @Override
+    public String deleteProfile(UserDto dto) {
+        try{
+            UserEntity entity= new UserEntity();
+            BeanUtils.copyProperties(entity,dto);
+            boolean isDeleted=repository.deleteProfile(entity);
+            if(isDeleted==true) return "deleted";
+        }catch (IllegalAccessException | InvocationTargetException e){
+            System.out.println(e.getMessage());
+        }
+        return "Error while executing the request";
+    }
+
     public Boolean validateName(String name) {
         if (name == null || name.trim().isEmpty()) {
             System.out.println("Invalid: Name cannot be empty or null.");
@@ -518,15 +564,81 @@ public class UserServiceImpl implements UserService {
     }
 
     public String passwordGenerator() {
+        String validCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*-=_+";
         Random random = new Random();
         StringBuilder stringBuilder = new StringBuilder();
+
         while (stringBuilder.length() < 13) {
-            char character = (char) random.nextInt(256);
-            if (String.valueOf(character).matches("[a-zA-Z0-9!@#$%^&*-=_+]")) {
-                stringBuilder.append(character);
-            }
+            int index = random.nextInt(validCharacters.length());
+            stringBuilder.append(validCharacters.charAt(index));
         }
         return stringBuilder.toString();
+    }
+
+    public void  sendEmail(String name, String email, String generatedPassword){
+
+        final String username = "prajwal.xworkz@gmail.com";//your email
+        final String password = "umha nrss tjbf afal";// your app password
+
+        Properties prop = new Properties();
+        prop.put("mail.smtp.host", "smtp.gmail.com");
+        prop.put("mail.smtp.port", "587");
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.starttls.enable", "true"); //TLS
+
+        Session session = Session.getInstance(prop,
+                new javax.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+
+        try {
+
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(
+                    Message.RecipientType.TO,
+                    InternetAddress.parse(email)
+            );
+            message.setSubject("Autogenerated password");
+            message.setText("Hello "+ name +","
+                    + "\n\nThis is your auto-generated password: " +generatedPassword
+                    + "\nSignIn with the above password and reset your new password."
+                    +"\n\nThanks,"+"\n The Xworkz Team"
+            );
+
+
+            Transport.send(message);
+
+            System.out.println("Done");
+
+        } catch (MessagingException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<byte[]>  captchaImage(HttpSession session){
+
+        Captcha captcha = new Captcha();
+        GeneratedCaptcha generatedCaptcha = captcha.generate();
+
+        session.setAttribute("captchaText", generatedCaptcha.getCode());
+
+        BufferedImage image = generatedCaptcha.getImage();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "png", baos);
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+        byte[] imageBytes = baos.toByteArray();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setCacheControl("no-store, no-cache, must-revalidate, max-age=0");
+        headers.setContentType(MediaType.IMAGE_PNG);
+
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
 
 }

@@ -1,24 +1,61 @@
 package com.xworkz.app.controller;
 
+import com.mewebstudio.captcha.GeneratedCaptcha;
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.xworkz.app.constants.Location;
 import com.xworkz.app.dto.UserDto;
 import com.xworkz.app.service.UserService;
+import com.xworkz.app.service.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 //import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 //@Slf4j
 @RequestMapping("/")
 @Controller
 public class UserController {
     @Autowired
     UserService service;
+
+@GetMapping("signUpPage")
+    public  String signUpPage(Model model){
+       List<Location> locationList=new ArrayList<>(Arrays.asList(Location.values()));
+        System.out.println("Locations: "+locationList);
+       model.addAttribute("location",locationList);
+       return "signUp.jsp";
+    }
+
+    @GetMapping("signInPage")
+     public String signInPage(){
+        return "signIn.jsp";
+     }
+
+    @GetMapping("/captchaImage")
+    public ResponseEntity<byte[]> getCaptchaImage(HttpSession session)  {
+        return  service.captchaImage(session);
+    }
 
     @PostMapping("signUp")
     public String saveProfile(UserDto dto, Model model) {
@@ -32,6 +69,8 @@ public class UserController {
         System.out.println(dto.getLocation());
         System.out.println(dto.getPassword());
         System.out.println(dto.getConfirmPassword());
+
+
         String returnedMessage = service.validateAndSave(dto);
         if (returnedMessage.equals("saved")) {
            model.addAttribute("successMessage","Saved Successfully!!");
@@ -44,12 +83,14 @@ public class UserController {
     }
 
     @PostMapping("signIn")
-    public String logIn(@RequestParam("email") String email, @RequestParam("password") String password,  Model model){
+    public String logIn(@RequestParam("email") String email, @RequestParam("password") String password,String enteredCaptcha,HttpSession session, Model model){
 //        log.info("signIn() in controller started");
         System.out.println("signIn() in controller started");
         System.out.println(email);
         System.out.println(password);
-        String returnedMessage=service.validateAndLogIn(email, password);
+        System.out.println("Entered captcha "+enteredCaptcha);
+        System.out.println("Given captcha "+(String)session.getAttribute("captchaText"));
+        String returnedMessage=service.validateAndLogIn(email, password,session,enteredCaptcha);
         System.out.println("The returned message is: "+returnedMessage);
         if(returnedMessage.equals("isPresent")){
             System.out.println("setting the scope");
@@ -70,13 +111,37 @@ public class UserController {
     }
 
     @GetMapping("getUserByEmail")
-    public String getUserDetails(@RequestParam("email") String email, Model model){
+    public String getUserDetails(@RequestParam("email") String email,String event, Model model){
         System.out.println("getUserDetails() in controller started");
+        System.out.println(email);
         UserDto dto=service.getUserByEmail(email);
-        model.addAttribute("dto",dto);
-        System.out.println("getUserDetails() in controller ended");
-        System.out.println("******************0********************0**************0**************0********************");
-        return "updateProfile.jsp";
+        if(dto!=null) {
+            if (event.equals("update")) {
+                model.addAttribute("dto", dto);
+                System.out.println("getUserDetails() in controller ended");
+                System.out.println("******************0********************0**************0**************0********************");
+                return "updateProfile.jsp";
+            } else {
+                String returnedMessage = service.deleteProfile(dto);
+                if (returnedMessage.equals("deleted")) {
+                    model.addAttribute("successMessage", "Profile deleted successfully!!");
+                    System.out.println("getUserDetails() in controller ended");
+                    System.out.println("******************0********************0**************0**************0********************");
+                    return "index.jsp";
+                } else {
+                    model.addAttribute("errorMessage", returnedMessage);
+                    System.out.println("getUserDetails() in controller ended");
+                    System.out.println("******************0********************0**************0**************0********************");
+                    return "myAccountPage.jsp";
+                }
+
+            }
+        }else{
+            model.addAttribute("errorMessage","Could not execute the request.\n\n Please try after some time!!");
+            System.out.println("getUserDetails() in controller ended");
+            System.out.println("******************0********************0**************0**************0********************");
+            return "myAccountPage.jsp";
+        }
     }
 
     @PostMapping("updateProfile")
@@ -85,6 +150,7 @@ public class UserController {
         String returnedMessage=service.updateProfile(dto);
         if(returnedMessage.equals("updated")){
             model.addAttribute("successMessage","Profile updated successfully");
+            model.addAttribute("email",dto.getEmail());
             System.out.println("updateProfile() in controller ended");
             System.out.println("******************0********************0**************0**************0********************");
             return "myAccountPage.jsp";

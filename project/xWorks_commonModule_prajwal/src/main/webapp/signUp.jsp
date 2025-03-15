@@ -63,11 +63,9 @@
                     <label >Others</label> <br>
                     <label class="form-label my-2" for="">Location</label>
                     <select class="form-select" name="location">
-                       <option  value="Hassan">Hassan</option>
-                       <option  value="Bengaluru">Bengaluru</option>
-                       <option  value="Mysuru">Mysuru</option>
-                       <option  value="Shivamogga">Shivamogga</option>
-                       <option  value="Chikkamagaluru">Chikkamagaluru</option>
+                    <c:forEach items="${location}" var="city">
+                       <option  value="${city}">${city}</option>
+                      </c:forEach>
                     </select>
 
                     <p style="color:red; margin-top:20px;">${errorMessage}</p>
