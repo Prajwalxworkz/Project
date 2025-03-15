@@ -577,8 +577,8 @@ public class UserServiceImpl implements UserService {
 
     public void  sendEmail(String name, String email, String generatedPassword){
 
-        final String username = "prajwal.xworkz@gmail.com";//your email
-        final String password = "umha nrss tjbf afal";// your app password
+        final String username = "";//your email
+        final String password = "";// your app password
 
         Properties prop = new Properties();
         prop.put("mail.smtp.host", "smtp.gmail.com");
