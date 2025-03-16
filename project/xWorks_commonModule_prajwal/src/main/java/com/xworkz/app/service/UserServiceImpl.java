@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
                                     entity.setInvalidLogInCount(-1);
                                     Boolean isSaved = repository.save(entity);
                                     if (isSaved){
-                                        sendEmail(dto.getFullName(),dto.getEmail(),password);
+                                         sendEmail(dto.getFullName(),dto.getEmail(),password);
                                         return "saved";
                                     }
                                     else return "ConstraintViolationException: could not execute statement";

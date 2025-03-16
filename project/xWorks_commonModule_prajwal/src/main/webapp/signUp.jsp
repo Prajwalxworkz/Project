@@ -22,7 +22,7 @@
 </head>
 <body>
    <c:if test="${not empty successMessage}">
-          <button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#successModal" id="autoClick"></button>
+          <button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#successModal" id="autoClick1"></button>
       </c:if>
   <div class="modal fade" id="successModal"   tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -30,6 +30,22 @@
         <div class="modal-header">
          <div class="modal-body">
                <p style="color:green;">${successMessage}</p>
+               </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <c:if test="${not empty errorMessage}">
+          <button type="button" class="d-none" data-bs-toggle="modal" data-bs-target="#errorModal" id="autoClick2"></button>
+      </c:if>
+  <div class="modal fade" id="errorModal"   tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+         <div class="modal-body">
+               <p style="color:red;">${errorMessage}</p>
                </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -45,30 +61,46 @@
                     <h4>Sign Up</h4>
                     <small>Already have an account? <a href="signIn.jsp">LogIn</a></small>
                 </div>
-                <form action="signUp" method="post">
-                    <label class="form-label my-2" for="">Full Name</label>
-                    <input class="form-control" type="text" name="fullName" id="">
-                    <label class="form-label my-2" for="">Email</label>
-                    <input class="form-control" type="email" name="email" id="">
-                    <label class="form-label my-2" for="">DoB</label>
-                    <input class="form-control" type="date" name="dob" id="">
-                    <label class="form-label my-2" for="">Phone Number</label>
-                    <input class="form-control" type="text" name="phoneNumber" id="">
-                    <label >Gender</label> <br>
-                    <input  type="radio" name="gender" value="male" id="">
-                    <label >Male</label> &nbsp;
-                    <input  type="radio" name="gender" value="female" id="">
-                    <label >Female</label> &nbsp;
-                    <input  type="radio" name="gender" value="others" id="">
-                    <label >Others</label> <br>
-                    <label class="form-label my-2" for="">Location</label>
-                    <select class="form-select" name="location">
-                    <c:forEach items="${location}" var="city">
-                       <option  value="${city}">${city}</option>
-                      </c:forEach>
-                    </select>
+                <form id="form" action="signUp" method="post">
+                    <div>
+                        <label class="form-label my-2" for="fullName">Full Name</label>
+                        <input class="form-control" type="text" name="fullName" id="fullName">
+                        <div class="error" style="color: red;"></div>
+                    </div>
+                    <div>
+                        <label class="form-label my-2" for="email">Email</label>
+                        <input class="form-control" type="email" name="email" id="email">
+                        <div class="error" style="color: red;"></div>
+                     </div>
+                     <div>
+                        <label class="form-label my-2" for="">DoB</label>
+                        <input class="form-control" type="date" name="dob" id="">
+                     </div>
+                     <div>
+                        <label class="form-label my-2" for="phoneNumber">Phone Number</label>
+                        <input class="form-control" type="text" name="phoneNumber" id="phoneNumber">
+                        <div class="error" style="color: red;"></div>
+                    </div>
+                    <div>
+                        <label >Gender</label> <br>
+                        <input  type="radio" name="gender" value="male" id="">
+                        <label >Male</label> &nbsp;
+                        <input  type="radio" name="gender" value="female" id="">
+                        <label >Female</label> &nbsp;
+                        <input  type="radio" name="gender" value="others" id="">
+                        <label >Others</label> <br>
+                    </div>
+                    <div>
+                        <label class="form-label my-2" for="">Location</label>
+                        <select class="form-select" name="location">
+                            <c:forEach items="${location}" var="city">
+                                <option  value="${city}">${city}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
 
-                    <p style="color:red; margin-top:20px;">${errorMessage}</p>
+
+
                     <button class="btn btn-primary my-3 " style="width: 100%;" type="submit">Submit</button>
                 </form>
             </div>
@@ -78,10 +110,15 @@
     "></script>
           <c:if test="${not empty successMessage}">
               <script>
-                      document.getElementById("autoClick").click();
+                      document.getElementById("autoClick1").click();
+              </script>
+          </c:if>
+           <c:if test="${not empty errorMessage}">
+              <script>
+                      document.getElementById("autoClick2").click();
               </script>
           </c:if>
 
-
+          <script src="${pageContext.request.contextPath}/resources/js/signUpForm.js"></script>
 </body>
 </html>
