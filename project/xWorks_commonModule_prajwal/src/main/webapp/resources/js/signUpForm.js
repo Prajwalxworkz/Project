@@ -3,7 +3,7 @@ const fullName=document.getElementById("fullName");
 const email=document.getElementById("email");
 const phoneNumber=document.getElementById("phoneNumber");
 
-const nameRegex=/[A-Z][a-zA-Z ]*/;
+const nameRegex=/^[A-Z][a-zA-Z]*( [A-Z][a-zA-Z]*)*$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const phoneNumberRegex = /(\+91)?[976]\d{9}/;
 
@@ -66,3 +66,44 @@ const validateInput=()=>{
       }
       return isValid;
 }
+
+function validateName(){
+   let fullNameValue=document.getElementById("fullName").value;
+   console.log("The name is: "+fullNameValue);
+    if(!((fullNameValue===null) || (typeof fullNameValue=="string" && fullNameValue.length===0))){
+    var xhttp=new XMLHttpRequest();
+    xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/fullName/"+encodeURIComponent(fullNameValue) );
+    xhttp.send();
+
+    xhttp.onload=function(){
+        document.getElementById("ajaxNameValidation").innerHTML=(this.responseText);
+       }
+    }
+
+ }
+
+ function validateEmail(){
+    let emailValue=document.getElementById("email").value;
+     if(!((emailValue===null) || (typeof emailValue=="string" && emailValue.length===0))){
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/email/"+encodeURIComponent(emailValue));
+    xhttp.send();
+
+    xhttp.onload=function(){
+        document.getElementById("ajaxEmailValidation").innerHTML=(this.responseText);
+        }
+    }
+ }
+ function validatePhoneNumber(){
+    let phoneNumberValue=document.getElementById("phoneNumber").value;
+    if(!((phoneNumberValue===null) || (typeof phoneNumberValue=="string" && phoneNumberValue.length===0))){
+    let xhttp = new XMLHttpRequest();
+    xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/phoneNumber/"+encodeURIComponent(phoneNumberValue));
+    xhttp.send();
+
+    xhttp.onload=function(){
+        document.getElementById("ajaxPhoneNumberValidation").innerHTML=(this.responseText);
+        }
+     }
+ }
+

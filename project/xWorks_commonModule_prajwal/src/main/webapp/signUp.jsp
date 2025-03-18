@@ -64,13 +64,15 @@
                 <form id="form" action="signUp" method="post">
                     <div>
                         <label class="form-label my-2" for="fullName">Full Name</label>
-                        <input class="form-control" type="text" name="fullName" id="fullName">
+                        <input class="form-control" onchange="validateName()" type="text" name="fullName" id="fullName">
+                        <span id="ajaxNameValidation"style="color:red;"></span>
                         <div class="error" style="color: red;"></div>
                     </div>
                     <div>
                         <label class="form-label my-2" for="email">Email</label>
-                        <input class="form-control" type="email" name="email" id="email">
+                        <input class="form-control" type="email" name="email" id="email" onchange="validateEmail()">
                         <div class="error" style="color: red;"></div>
+                        <span id="ajaxEmailValidation"style="color:red;"></span>
                      </div>
                      <div>
                         <label class="form-label my-2" for="">DoB</label>
@@ -78,8 +80,9 @@
                      </div>
                      <div>
                         <label class="form-label my-2" for="phoneNumber">Phone Number</label>
-                        <input class="form-control" type="text" name="phoneNumber" id="phoneNumber">
+                        <input class="form-control" type="text" name="phoneNumber" id="phoneNumber" onchange="validatePhoneNumber()">
                         <div class="error" style="color: red;"></div>
+                        <span id="ajaxPhoneNumberValidation"style="color:red;"></span>
                     </div>
                     <div>
                         <label >Gender</label> <br>
@@ -118,7 +121,6 @@
                       document.getElementById("autoClick2").click();
               </script>
           </c:if>
-
           <script src="${pageContext.request.contextPath}/resources/js/signUpForm.js"></script>
 </body>
 </html>

@@ -21,7 +21,8 @@ public class UserEntity {
     private String dob;
     private Long phoneNumber;
     private String gender;
-    private String location;
+    @Enumerated(EnumType.STRING)
+    private Location location;
     private String password;
     private int invalidLogInCount;
     @Column(name = "lastLogIn", columnDefinition = "TIMESTAMP(6)")

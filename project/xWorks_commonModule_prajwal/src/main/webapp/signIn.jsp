@@ -39,7 +39,7 @@
 
       <div class="text-center my-3">
         <h3>Log In</h3>
-        <small> Don't have an account? <a href="signUp.jsp"> SignUp </a> </small>
+        <small> Don't have an account? <a href="signUpPage"> SignUp </a> </small>
       </div>
       <div class="row justify-content-center">
         <div class="col col-md-6">

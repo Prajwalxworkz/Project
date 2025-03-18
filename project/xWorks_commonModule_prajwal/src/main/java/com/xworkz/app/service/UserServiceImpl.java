@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
         for (UserEntity entity : entityList) {
             if (dto.getFullName().equals(entity.getFullName())) return "Name exists";
             if (entity.getEmail().equals(dto.getEmail())) return "Email exists";
-            if (dto.getPhoneNumber().equals(entity.getPhoneNumber())) return "Phone number exists";
+            if (dto.getPhoneNumber()==(entity.getPhoneNumber())) return "Phone number exists";
         }
         String name = dto.getFullName();
         String email = dto.getEmail();
@@ -312,6 +312,8 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByEmail(String email) {
         System.out.println("getUserByEmail() in service started");
         UserEntity entity = repository.getUserByEmail(email);
+
+
         entity.setPassword(decryption(entity.getPassword()));
         try {
             UserDto dto = new UserDto();
@@ -375,7 +377,7 @@ public class UserServiceImpl implements UserService {
         String confirmPassword = dto.getConfirmPassword();
         try {
             if (name != null && !name.trim().isEmpty()) {
-                if (name.matches("[A-Z][a-zA-Z ]*")) {
+                if (name.matches("^[A-Z][a-zA-Z]*( [A-Z][a-zA-Z]*)*$")) {
                     if (name.length() >= 3 && name.length() <= 50) {
                         if (email.matches("^[a-zA-Z0-9_.%+-]+@gmail\\.com$")) {
                             if (phoneNumber != null) {
@@ -398,7 +400,7 @@ public class UserServiceImpl implements UserService {
                             return "Invalid: domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.";
                     } else return "Invalid: Name should be of length min of 3 and max of 50";
                 } else
-                    return "Invalid: Name must start with an uppercase letter and must contain only alphabets and spaces.";
+                    return "Invalid:Name must start with an uppercase letter, each word must begin with an uppercase letter, and it should contain only alphabets and spaces.";
             } else return "Invalid: Name cannot be empty or null.";
         } catch (IllegalAccessException | InvocationTargetException e) {
             System.out.println(e.getMessage());
@@ -577,8 +579,8 @@ public class UserServiceImpl implements UserService {
 
     public void  sendEmail(String name, String email, String generatedPassword){
 
-        final String username = "";//your email
-        final String password = "";// your app password
+        final String username = "prajwal.xworkz@gmail.com";//your email
+        final String password = "umha nrss tjbf afal";// your app password
 
         Properties prop = new Properties();
         prop.put("mail.smtp.host", "smtp.gmail.com");
