@@ -42,13 +42,22 @@
         <div class="row justify-content-center my-3">
             <div class="col-md-4">
 
-                <form id="form" action="updateProfile" method="post">
+                <form id="form" action="updateProfile" method="post" enctype="multipart/form-data"
+>
                      <div>
                         <label class="form-label my-2" for="fullName">Full Name</label>
                         <input class="form-control" onchange="validateName()" type="text" value="${sessionScope.dto.fullName}" name="fullName" id="fullName">
                         <span id="ajaxValidation"style="color:red;"></span>
                         <div class="error" style="color: red;"></div>
                     </div>
+                     <div>
+                         <label class="form-label my-2" for="profilePhoto">Profile photo</label>
+                         <input class="form-control" type="file" name="multipartFile" id="profilePhoto" placeholder="Upload image">
+                         <img src="download?profilePicture=${sessionScope.dto.profilePicture}" width="60px" height="70px" alt="Profile Picture"> </br>
+                         <a href="download?profilePicture=${sessionScope.dto.profilePicture}" style="text-decoration: none;" >Download Image</a>
+
+                    </div>
+
                     <div>
                         <label class="form-label my-2" for="email">Email</label>
                         <input class="form-control" type="hidden" name="email" id="email" value="${sessionScope.dto.email}" >

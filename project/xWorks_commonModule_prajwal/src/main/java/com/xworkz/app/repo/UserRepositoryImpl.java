@@ -1,6 +1,7 @@
 package com.xworkz.app.repo;
 
 import com.xworkz.app.entity.UserEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class UserRepositoryImpl implements UserRepository{
     @Autowired
@@ -15,65 +17,65 @@ public class UserRepositoryImpl implements UserRepository{
 
     @Override
     public Boolean save(UserEntity entity) {
-        System.out.println("------------------------------------");
-        System.out.println("save() in repo started");
+        log.info("------------------------------------");
+        log.info("save() in repo started");
         Boolean isSaved=false;
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            System.out.println(entity);
-//            System.out.println("Saving -1 as the default value for invalidLoginCount");
+            log.info(String.valueOf(entity));
+//            log.info("Saving -1 as the default value for invalidLoginCount");
 //            entity.setInvalidLogInCount(-1);
-            System.out.println("Moving to db");
+            log.info("Moving to db");
             em.persist(entity);
             isSaved=true;
-            System.out.println("Is data saved?: "+isSaved);
+            log.info("Is data saved?: "+isSaved);
             em.getTransaction().commit();
         }catch (Exception e){
             em.getTransaction().rollback();
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         }finally {
             em.close();
         }
-        System.out.println("save() in repo ended");
-        System.out.println("------------------------------------");
+        log.info("save() in repo ended");
+        log.info("------------------------------------");
         return isSaved;
     }
 
     @Override
     public List<UserEntity> getAllUserData() {
-        System.out.println("------------------------------------");
-        System.out.println("getAllUserData() in repo started");
+        log.info("------------------------------------");
+        log.info("getAllUserData() in repo started");
         EntityManager em = emf.createEntityManager();
         List<UserEntity> entityList=new ArrayList<>();
         try {
             entityList = em.createNamedQuery("getAllUserData").getResultList();
-            System.out.println("is resultSet empty: " + entityList.isEmpty());
+            log.info("is resultSet empty: " + entityList.isEmpty());
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         }finally {
         em.close();
         }
-        System.out.println("getAllUserData() in repo ended");
-        System.out.println("------------------------------------");
+        log.info("getAllUserData() in repo ended");
+        log.info("------------------------------------");
         return entityList;
     }
 
     @Override
     public UserEntity getUserByEmail(String email) {
-        System.out.println("------------------------------------");
-        System.out.println("getUserByEmail() in repo started");
+        log.info("------------------------------------");
+        log.info("getUserByEmail() in repo started");
         EntityManager em = emf.createEntityManager();
         UserEntity entity=new UserEntity();
         try {
              entity = (UserEntity) em.createNamedQuery("getUserByEmail").setParameter("emailId", email).getSingleResult();
-            System.out.println(entity);
-            System.out.println("getUserByEmail() in repo ended");
-            System.out.println("------------------------------------");
+            log.info(String.valueOf(entity));
+            log.info("getUserByEmail() in repo ended");
+            log.info("------------------------------------");
             return entity;
         }catch (NoResultException e){
-            System.out.println("catch block  of getUserByEmail()");
-            System.out.println(e.getMessage());
+            log.info("catch block  of getUserByEmail()");
+            log.info(e.getMessage());
         }finally {
             em.close();
         }
@@ -83,20 +85,20 @@ public class UserRepositoryImpl implements UserRepository{
     @Override
     public Boolean updateProfile(UserEntity entity) {
         Boolean isUpdated=false;
-        System.out.println("------------------------------------");
-        System.out.println("updateProfile() in repo  started");
+        log.info("------------------------------------");
+        log.info("updateProfile() in repo  started");
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            System.out.println(entity.getFullName());
-            System.out.println(entity.getEmail());
-            System.out.println(entity.getGender());
-            System.out.println(entity.getDob());
-            System.out.println(entity.getPhoneNumber());
-            System.out.println(entity.getLocation());
-            System.out.println(entity.getPassword());
-            System.out.println(entity.getLastLogIn());
-            System.out.println(entity.getInvalidLogInCount());
+            log.info(entity.getFullName());
+            log.info(entity.getEmail());
+            log.info(entity.getGender());
+            log.info(entity.getDob());
+            log.info(String.valueOf(entity.getPhoneNumber()));
+            log.info(String.valueOf(entity.getLocation()));
+            log.info(entity.getPassword());
+            log.info(String.valueOf(entity.getLastLogIn()));
+            log.info(String.valueOf(entity.getInvalidLogInCount()));
             Query query = em.createNamedQuery("updateProfile");
             query.setParameter("fullName", entity.getFullName());
             query.setParameter("email", entity.getEmail());
@@ -107,32 +109,35 @@ public class UserRepositoryImpl implements UserRepository{
             query.setParameter("password", entity.getPassword());
             query.setParameter("lastLogIn", entity.getLastLogIn());
             query.setParameter("invalidLogInCount", entity.getInvalidLogInCount());
+            query.setParameter("updatedBy", entity.getUpdatedBy());
+            query.setParameter("updatedDate", entity.getUpdatedDate());
+            query.setParameter("profilePicture", entity.getProfilePicture());
             query.executeUpdate();
 //        em.merge(entity);
             isUpdated = true;
             em.getTransaction().commit();
         }catch (Exception e){
             em.getTransaction().rollback();
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         }finally {
             em.close();
         }
-        System.out.println("updateProfile() in repo ended");
-        System.out.println("------------------------------------");
+        log.info("updateProfile() in repo ended");
+        log.info("------------------------------------");
         return isUpdated;
     }
 
     @Override
     public boolean deleteProfile(UserEntity entity) {
         boolean isDeleted=false;
-        System.out.println("------------------------------------");
-        System.out.println("deleteProfile() in repo started");
+        log.info("------------------------------------");
+        log.info("deleteProfile() in repo started");
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-            System.out.println(entity);
+            log.info(String.valueOf(entity));
             UserEntity entity1=em.find(UserEntity.class,entity.getId());
-            System.out.println(entity1);
+            log.info(String.valueOf(entity1));
             if(entity1!=null) {
                 em.remove(entity1);
             }
@@ -140,12 +145,12 @@ public class UserRepositoryImpl implements UserRepository{
             em.getTransaction().commit();
         }catch (Exception e){
             em.getTransaction().rollback();
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         }finally {
             em.close();
         }
-        System.out.println("deleteProfile() in repo ended");
-        System.out.println("------------------------------------");
+        log.info("deleteProfile() in repo ended");
+        log.info("------------------------------------");
         return isDeleted;
     }
 

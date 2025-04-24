@@ -61,11 +61,16 @@
                     <h4>Sign Up</h4>
                     <small>Already have an account? <a href="signIn.jsp">LogIn</a></small>
                 </div>
-                <form id="form" action="signUp" method="post">
+                <form id="form" action="signUp" method="post" enctype="multipart/form-data">
                     <div>
                         <label class="form-label my-2" for="fullName">Full Name</label>
                         <input class="form-control" onchange="validateName()" type="text" name="fullName" id="fullName">
                         <span id="ajaxNameValidation"style="color:red;"></span>
+                        <div class="error" style="color: red;"></div>
+                    </div>
+                     <div>
+                        <label class="form-label my-2" for="profilePhoto">Profile photo</label>
+                        <input class="form-control" type="file" name="multipartFile" id="profilePhoto" placeholder="Upload image">
                         <div class="error" style="color: red;"></div>
                     </div>
                     <div>

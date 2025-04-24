@@ -1,10 +1,8 @@
 const form=document.getElementById("form");
 const fullName=document.getElementById("fullName");
-const email=document.getElementById("email");
 const phoneNumber=document.getElementById("phoneNumber");
 
 const nameRegex=/^[A-Z][a-zA-Z]*( [A-Z][a-zA-Z]*)*$/;
-const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const phoneNumberRegex = /(\+91)?[976]\d{9}/;
 
 form.addEventListener("submit",e=>{
@@ -45,15 +43,6 @@ const validateInput=()=>{
            setSuccess(fullName);
        }
 
-       if(emailValue===""){
-           setError(email,"Email  is required");
-           isValid = false;
-       }else if(!(emailRegex.test(emailValue))){
-           setError(email,"Domain should be gmail.com, no spaces in between, and only '_', '.', '%', '+', and '-' are allowed.");
-           isValid = false;
-      }else{
-           setSuccess(email);
-      }
 
       if(phoneNumberValue===""){
            setError(phoneNumber,"Phone number  is required");
@@ -68,7 +57,6 @@ const validateInput=()=>{
 }
 
 function validateName(){
-   let fullName=document.getElementById("fullName");
    let fullNameValue=document.getElementById("fullName").value;
    console.log("The name is: "+fullNameValue);
     if(!((fullNameValue===null) || (typeof fullNameValue=="string" && fullNameValue.length===0))){
@@ -77,60 +65,22 @@ function validateName(){
     xhttp.send();
 
     xhttp.onload=function(){
-        document.getElementById("ajaxNameValidation").innerHTML=(this.responseText);
+        document.getElementById("ajaxValidation").innerHTML=(this.responseText);
        }
     }
 
  }
 
- function validateEmail(){
-    let email=document.getElementById("email");
-    let emailValue=document.getElementById("email").value;
-     if(!((emailValue===null) || (typeof emailValue=="string" && emailValue.length===0))){
-    let xhttp = new XMLHttpRequest();
-    xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/email/"+encodeURIComponent(emailValue));
-    xhttp.send();
+  function validatePhoneNumber(){
+     let phoneNumberValue=document.getElementById("phoneNumber").value;
+     console.log("The name is: "+phoneNumberValue);
+     if(!((phoneNumberValue===null) || (typeof phoneNumberValue=="string" && phoneNumberValue.length===0))){
+     let xhttp = new XMLHttpRequest();
+     xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/phoneNumber/"+encodeURIComponent(phoneNumberValue));
+     xhttp.send();
 
-    xhttp.onload=function(){
-        document.getElementById("ajaxEmailValidation").innerHTML=(this.responseText);
-        }
-    }
- }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- function validatePhoneNumber(){
-    let phoneNumberValue=document.getElementById("phoneNumber").value;
-    if(!((phoneNumberValue===null) || (typeof phoneNumberValue=="string" && phoneNumberValue.length===0))){
-    let xhttp = new XMLHttpRequest();
-    xhttp.open("GET","http://localhost:8080/xWorks_commonModule_prajwal/phoneNumber/"+encodeURIComponent(phoneNumberValue));
-    xhttp.send();
-
-    xhttp.onload=function(){
-        document.getElementById("ajaxPhoneNumberValidation").innerHTML=(this.responseText);
-        }
-     }
- }
-
+     xhttp.onload=function(){
+         document.getElementById("ajaxPhoneNumberValidation").innerHTML=(this.responseText);
+         }
+      }
+  }

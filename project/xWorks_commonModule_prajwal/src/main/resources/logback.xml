@@ -1,0 +1,67 @@
+<!--<configuration>-->
+
+<!--    &lt;!&ndash; Define the log file path &ndash;&gt;-->
+<!--    <property name="LOG_FILE" value="logs/app.log" />-->
+
+<!--    &lt;!&ndash; Console Appender (Print logs in console) &ndash;&gt;-->
+<!--    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; Rolling File Appender (Save logs in a file & rotate daily) &ndash;&gt;-->
+<!--    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        &lt;!&ndash;        <file>${LOG_FILE}</file>&ndash;&gt;-->
+<!--        <file>C:\Users\Legion\Documents\MavenProjects\project\test.log</file>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>logs/app-%d{yyyy-MM-dd}.log</fileNamePattern> &lt;!&ndash; Daily log files &ndash;&gt;-->
+<!--            <maxHistory>7</maxHistory> &lt;!&ndash; Keep logs for the last 7 days &ndash;&gt;-->
+<!--            <totalSizeCap>100MB</totalSizeCap> &lt;!&ndash; Limit total log size to 100MB &ndash;&gt;-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    &lt;!&ndash; Set the logging level and use both console and file appenders &ndash;&gt;-->
+<!--    <root level="info">-->
+<!--        <appender-ref ref="CONSOLE" />-->
+<!--        <appender-ref ref="ROLLING_FILE" />-->
+<!--    </root>-->
+
+<!--    &lt;!&ndash; Logging levels for specific packages (optional) &ndash;&gt;-->
+<!--    <logger name="org.springframework" level="warn" /> &lt;!&ndash; Reduce Spring logs &ndash;&gt;-->
+<!--    <logger name="com.xworkz.app" level="debug" /> &lt;!&ndash; More logs for your package &ndash;&gt;-->
+
+<!--</configuration>-->
+
+
+<configuration debug="false"> <!-- Disable extra Logback debugging -->
+
+    <!-- Console Appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss} %-5level %logger{20} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <!-- File Appender -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>D:\MavenProjects\project\logs\test1.log</file>
+        <append>true</append>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{HH:mm:ss} %-5level %logger{20} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <!-- Set Log Levels -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="ERROR"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

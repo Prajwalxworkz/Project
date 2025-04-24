@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.*;
 
@@ -20,6 +21,8 @@ public class  UserDto {
 //    @Min(value =3, message = "characters should be >3")
 //    @Max(value =5, message = "characters should be <5")
     private String fullName;
+    private String profilePicture;
+    private MultipartFile multipartFile;
     private String email;
     private String dob;
     private Long phoneNumber;
